@@ -15,10 +15,19 @@ public class JobScheduler {
 
     public static void setJobScheduler(Context context) {
 
+        ComponentName serviceName = new ComponentName(context, JobSchedulerService.class.getName());
+
         android.app.job.JobScheduler mJobScheduler = (android.app.job.JobScheduler)
                 context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
-        ComponentName serviceName = new ComponentName(context, JobSchedulerService.class.getName());
+        if (mJobScheduler.getAllPendingJobs().size() > 0){
+            for (JobInfo jobInfo : mJobScheduler.getAllPendingJobs()){
+                if (jobInfo.getService().getPackageName().equals(serviceName.getPackageName())){
+                    return;
+                }
+            }
+        }
+
         JobInfo jobInfo = new JobInfo.Builder( 1, serviceName)
                 .setPeriodic(86400000) //86400000 - day;
                 .setPersisted(true)
